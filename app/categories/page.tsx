@@ -1,9 +1,9 @@
-import { AppSidebar } from "../../components/app-sidebar"
-import { CategoryTable } from "../../components/category-table"
-import { SiteHeader } from "../../components/site-header"
+import { AppSidebar } from "@/components/app-sidebar"
+import { CategoryTable } from "@/components/category-table"
+import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
-import { categoryData } from "../dashboard/categories-data"
+import { categoryData } from "@/app/dashboard/categories-data"
 
 export default function CategoriesPage() {
   return (
