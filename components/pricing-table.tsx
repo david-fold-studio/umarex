@@ -13,8 +13,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, Check, Download, Pencil, Plus, RotateCcw, Search, X } from "lucide-react"
+import { ArrowUpDown, Calendar as CalendarIcon, Check, Download, Pencil, Plus, RotateCcw, Search, X } from "lucide-react"
 import { toast } from "sonner"
+import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -23,6 +24,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { type PricingItem, categories } from "@/app/dashboard/pricing-data"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 
 // Extended PricingItem to track edited fields
 interface ExtendedPricingItem extends PricingItem {
@@ -43,6 +47,10 @@ const EditableNumberCell = ({ getValue, row, column, table }: EditableCellProps)
   const [value, setValue] = React.useState(initialValue)
   const [isEditing, setIsEditing] = React.useState(false)
 
+  // Get selected date from table meta
+  const selectedDate = table.options.meta?.selectedDate
+  const isHistoricalView = table.options.meta?.isHistoricalView
+  
   // Check if this field has been manually edited
   const isEdited = row.original.editedFields?.[column.id] === true
 
@@ -154,7 +162,7 @@ const EditableNumberCell = ({ getValue, row, column, table }: EditableCellProps)
     <div className="flex items-center justify-end group">
       <div className={`font-medium ${isEdited ? "text-orange-500" : ""}`}>{formatted}</div>
       <div className="flex ml-2">
-        {isEdited && (
+        {isEdited && !isHistoricalView && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -219,14 +227,16 @@ const EditableNumberCell = ({ getValue, row, column, table }: EditableCellProps)
             </TooltipContent>
           </Tooltip>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={() => setIsEditing(true)}
-        >
-          <Pencil className="h-3 w-3" />
-        </Button>
+        {!isHistoricalView && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => setIsEditing(true)}
+          >
+            <Pencil className="h-3 w-3" />
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -237,6 +247,10 @@ const EditableSalePriceCell = ({ getValue, row, column, table }: EditableCellPro
   const initialValue = getValue()
   const [value, setValue] = React.useState(initialValue)
   const [isEditing, setIsEditing] = React.useState(false)
+  
+  // Get selected date from table meta
+  const selectedDate = table.options.meta?.selectedDate
+  const isHistoricalView = table.options.meta?.isHistoricalView
 
   // Check if this field has been manually edited
   const isEdited = row.original.editedFields?.[column.id] === true
@@ -333,7 +347,7 @@ const EditableSalePriceCell = ({ getValue, row, column, table }: EditableCellPro
     <div className="flex items-center justify-end group">
       <div className={`font-medium ${isEdited ? "text-orange-500" : ""}`}>{formatted}</div>
       <div className="flex ml-2">
-        {isEdited && (
+        {isEdited && !isHistoricalView && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -398,16 +412,52 @@ const EditableSalePriceCell = ({ getValue, row, column, table }: EditableCellPro
             </TooltipContent>
           </Tooltip>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={() => setIsEditing(true)}
-        >
-          <Pencil className="h-3 w-3" />
-        </Button>
+        {!isHistoricalView && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => setIsEditing(true)}
+          >
+            <Pencil className="h-3 w-3" />
+          </Button>
+        )}
       </div>
     </div>
+  )
+}
+
+// Date selector for pricing history
+const DateSelector = ({ 
+  date, 
+  setDate 
+}: { 
+  date: Date | undefined, 
+  setDate: (date: Date | undefined) => void 
+}) => {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-[280px] justify-start text-left font-normal",
+            !date && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date ? format(date, "PPP") : "View pricing as of date"}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -424,6 +474,17 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all")
+  
+  // Add date state for historical pricing view
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined)
+  
+  // Determine if we're in historical view mode (selected date is in the past)
+  const isHistoricalView = React.useMemo(() => {
+    if (!selectedDate) return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // Reset time part for accurate comparison
+    return selectedDate < today
+  }, [selectedDate])
 
   // Define columns with editable cells
   const columns: ColumnDef<ExtendedPricingItem>[] = [
@@ -434,6 +495,7 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
           checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
+          disabled={isHistoricalView}
         />
       ),
       cell: ({ row }) => (
@@ -441,6 +503,7 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          disabled={isHistoricalView}
         />
       ),
       enableSorting: false,
@@ -622,6 +685,8 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
         setData(newData)
       },
       initialData: initialData, // Add this line to store the original data
+      selectedDate,
+      isHistoricalView,
     },
   })
 
@@ -640,16 +705,33 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" className="h-9">
+              <DateSelector date={selectedDate} setDate={setSelectedDate} />
+              <Button variant="outline" size="sm" className="h-9" disabled={isHistoricalView}>
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
-              <Button size="sm" className="h-9">
+              <Button size="sm" className="h-9" disabled={isHistoricalView}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Product
               </Button>
             </div>
           </div>
+
+          {isHistoricalView && (
+            <div className="bg-amber-50 border border-amber-200 rounded-md px-4 py-3 text-amber-800">
+              <p className="flex items-center text-sm">
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                Viewing historical pricing data as of {format(selectedDate as Date, "MMMM d, yyyy")}. Editing is disabled.
+                <Button 
+                  variant="link" 
+                  className="ml-2 h-auto p-0 text-amber-800 underline"
+                  onClick={() => setSelectedDate(undefined)}
+                >
+                  Return to current pricing
+                </Button>
+              </p>
+            </div>
+          )}
 
           <div className="rounded-md border">
             <div className="border-b px-4 py-3">
