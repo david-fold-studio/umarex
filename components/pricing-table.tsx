@@ -29,6 +29,8 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { TablePagination } from "@/components/table-pagination"
+import { Badge } from "@/components/ui/badge"
+import { EditableNumberCell } from "@/components/editable-number-cell"
 
 // Extended PricingItem to track edited fields
 interface ExtendedPricingItem extends PricingItem {
@@ -41,207 +43,6 @@ interface EditableCellProps {
   row: any
   column: any
   table: any
-}
-
-// Editable cell component for numeric values
-const EditableNumberCell = ({ getValue, row, column, table }: EditableCellProps) => {
-  const initialValue = getValue()
-  const [value, setValue] = React.useState(initialValue)
-  const [isEditing, setIsEditing] = React.useState(false)
-
-  // Get selected date from table meta
-  const selectedDate = table.options.meta?.selectedDate
-  const isHistoricalView = table.options.meta?.isHistoricalView
-  
-  // Check if this field has been manually edited
-  const isEdited = row.original.editedFields?.[column.id] === true
-
-  // Update internal state when the value changes
-  React.useEffect(() => {
-    setValue(initialValue)
-  }, [initialValue])
-
-  const onBlur = () => {
-    // Only update if the value has changed
-    if (value !== initialValue) {
-      // Get the current data
-      const newData = [...table.options.data]
-      const index = newData.findIndex((item) => item.id === row.original.id)
-
-      if (index !== -1) {
-        // Update the specific field
-        newData[index] = {
-          ...newData[index],
-          [column.id]: Number.parseFloat(value),
-          // Track that this field has been edited
-          editedFields: {
-            ...(newData[index].editedFields || {}),
-            [column.id]: true,
-          },
-        }
-
-        // Recalculate cost price (sum of all costs)
-        const costPrice =
-          newData[index].importCost +
-          newData[index].shippingCost +
-          newData[index].customsDuty +
-          newData[index].handlingFee
-
-        newData[index].costPrice = Number.parseFloat(costPrice.toFixed(2))
-
-        // Recalculate net profit and profit margin
-        const netProfit = newData[index].salePrice - newData[index].costPrice
-        newData[index].netProfit = Number.parseFloat(netProfit.toFixed(2))
-
-        const profitMargin = (netProfit / newData[index].salePrice) * 100
-        newData[index].profitMargin = Number.parseFloat(profitMargin.toFixed(2))
-
-        // Update the table data
-        table.options.meta?.updateData(newData)
-
-        // Show success toast
-        toast.success(`Updated ${row.original.name} ${column.id}`)
-      }
-    }
-    setIsEditing(false)
-  }
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.currentTarget.blur()
-    } else if (e.key === "Escape") {
-      setValue(initialValue)
-      setIsEditing(false)
-    }
-  }
-
-  if (isEditing) {
-    return (
-      <div className="flex items-center">
-        <Input
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={onBlur}
-          onKeyDown={onKeyDown}
-          autoFocus
-          className="h-8 w-24 text-right"
-        />
-        <div className="flex ml-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => {
-              onBlur()
-            }}
-          >
-            <Check className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => {
-              setValue(initialValue)
-              setIsEditing(false)
-            }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  // Format the value as currency
-  const amount = Number.parseFloat(value)
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount)
-
-  return (
-    <div className="flex items-center justify-end group">
-      <div className={`font-medium ${isEdited ? "text-orange-500" : ""}`}>{formatted}</div>
-      <div className="flex ml-2">
-        {isEdited && !isHistoricalView && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => {
-                  // Get the current data
-                  const newData = [...table.options.data]
-                  const index = newData.findIndex((item) => item.id === row.original.id)
-
-                  if (index !== -1) {
-                    // Remove the edited flag for this field
-                    const updatedEditedFields = { ...newData[index].editedFields }
-                    delete updatedEditedFields[column.id]
-
-                    // Reset to the original value from initialData
-                    const originalItem = table.options.meta?.initialData?.find((item: PricingItem) => item.id === row.original.id)
-
-                    if (originalItem) {
-                      // Update the field with original value
-                      newData[index] = {
-                        ...newData[index],
-                        [column.id]: originalItem[column.id],
-                        editedFields: updatedEditedFields,
-                      }
-
-                      // Recalculate cost price (sum of all costs)
-                      const costPrice =
-                        newData[index].importCost +
-                        newData[index].shippingCost +
-                        newData[index].customsDuty +
-                        newData[index].handlingFee
-
-                      newData[index].costPrice = Number.parseFloat(costPrice.toFixed(2))
-
-                      // Recalculate net profit and profit margin
-                      const netProfit = newData[index].salePrice - newData[index].costPrice
-                      newData[index].netProfit = Number.parseFloat(netProfit.toFixed(2))
-
-                      const profitMargin = (netProfit / newData[index].salePrice) * 100
-                      newData[index].profitMargin = Number.parseFloat(profitMargin.toFixed(2))
-
-                      // Update the table data
-                      table.options.meta?.updateData(newData)
-
-                      // Show success toast
-                      toast.success(`Reverted ${row.original.name} ${column.id} to original value`)
-                    }
-                  }
-                }}
-              >
-                <RotateCcw className="h-3 w-3" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent 
-              side="top" 
-              align="center"
-              sideOffset={5}
-            >
-              Revert to inherited calculated value
-            </TooltipContent>
-          </Tooltip>
-        )}
-        {!isHistoricalView && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => setIsEditing(true)}
-          >
-            <Pencil className="h-3 w-3" />
-          </Button>
-        )}
-      </div>
-    </div>
-  )
 }
 
 // Editable cell component for sale price
@@ -457,6 +258,25 @@ export function PricingTable({ data: initialData, selectedDate, isHistoricalView
     return selectedDate < today
   }, [selectedDate])
 
+  // Ref for the frozen columns container
+  const frozenColsRef = React.useRef<HTMLDivElement>(null)
+
+  // Ref for the product column header
+  const productHeaderRef = React.useRef<HTMLTableCellElement>(null)
+
+  React.useEffect(() => {
+    if (frozenColsRef.current) {
+      document.documentElement.style.setProperty('--frozen-cols-width', `${frozenColsRef.current.offsetWidth}px`)
+    }
+  }, [data])
+
+  React.useEffect(() => {
+    if (productHeaderRef.current) {
+      const width = productHeaderRef.current.offsetWidth
+      document.documentElement.style.setProperty('--frozen-cols-width', `${width + 48}px`)
+    }
+  }, [data])
+
   // Define columns with editable cells
   const columns: ColumnDef<ExtendedPricingItem>[] = [
     {
@@ -481,39 +301,37 @@ export function PricingTable({ data: initialData, selectedDate, isHistoricalView
       enableHiding: false,
     },
     {
-      accessorKey: "upc",
-      header: "UPC",
-      cell: ({ row }) => <div className="font-medium whitespace-nowrap">{row.getValue("upc")}</div>,
-      size: 120,
-    },
-    {
-      accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="w-full justify-start">
-            Product Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      accessorKey: "productInfo",
+      header: "Product",
       cell: ({ row }) => {
         const router = useRouter()
+        const upc = row.original.upc
+        // Ensure UPC is 12 digits, pad with leading zeros if needed
+        const upc12 = upc.toString().padStart(12, '0')
+        // Format as X XXXXX XXXXX X (with spaces)
+        const formattedUPC = upc12.replace(/(\d{1})(\d{5})(\d{5})(\d{1})/, '$1 $2 $3 $4')
+        
         return (
           <div 
-            className="flex items-center cursor-pointer hover:text-blue-600 group"
+            className="flex flex-col cursor-pointer hover:text-blue-600 group whitespace-nowrap"
             onClick={() => router.push(`/item/${row.original.id}`)}
           >
-            <span>{row.getValue("name")}</span>
-            <ExternalLink className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-100" />
+            <span className="text-gray-800 font-medium text-sm">{formattedUPC}</span>
+            <span className="text-gray-500">{row.original.name}</span>
+            <ExternalLink className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-100 absolute right-2" />
           </div>
         )
       },
+      size: 800,
     },
     {
       accessorKey: "category",
       header: "Category",
-      cell: ({ row }) => <div>{row.getValue("category")}</div>,
+      cell: ({ row }) => (
+        <Badge variant="outline" className="font-medium text-gray-800 whitespace-nowrap">
+          {row.getValue("category")}
+        </Badge>
+      ),
     },
     {
       accessorKey: "importCost",
@@ -668,7 +486,7 @@ export function PricingTable({ data: initialData, selectedDate, isHistoricalView
       updateData: (newData: ExtendedPricingItem[]) => {
         setData(newData)
       },
-      initialData: initialData, // Add this line to store the original data
+      initialData: initialData,
       selectedDate,
       isHistoricalView,
     },
@@ -677,31 +495,32 @@ export function PricingTable({ data: initialData, selectedDate, isHistoricalView
   return (
     <TooltipProvider delayDuration={0} skipDelayDuration={0}>
       <div className="w-full">
-        <div className="border-b overflow-x-auto">
-          <div className="border-b px-4 py-3">
-            <Tabs defaultValue="all" onValueChange={setCategoryFilter}>
-              <TabsList className="grid grid-cols-4 sm:grid-cols-8">
-                <TabsTrigger value="all">All</TabsTrigger>
-                {categories.map((category) => (
-                  <TabsTrigger key={category} value={category}>
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
+        <div className="border-b overflow-x-auto relative">
+          <Tabs
+            defaultValue="all"
+            value={categoryFilter}
+            onValueChange={setCategoryFilter}
+            className="mb-4"
+          >
+            <TabsList className="mx-4">
+              <TabsTrigger value="all">All Categories</TabsTrigger>
+              {categories.map((category) => (
+                <TabsTrigger key={category} value={category}>
+                  {category}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header, idx) => {
-                    // Sticky logic for first three columns
                     let style = {}
                     if (idx === 0) style = { position: 'sticky', left: 0, zIndex: 2, background: 'white', minWidth: 48, maxWidth: 48 }
-                    if (idx === 1) style = { position: 'sticky', left: 48, zIndex: 2, background: 'white', minWidth: 120, maxWidth: 120 }
-                    if (idx === 2) style = { position: 'sticky', left: 168, zIndex: 2, background: 'white', minWidth: 240, maxWidth: 240 }
+                    if (idx === 1) style = { position: 'sticky', left: 48, zIndex: 2, background: 'white', width: 'auto' }
                     return (
-                      <TableHead key={header.id} style={style}>
+                      <TableHead key={header.id} style={style} ref={idx === 1 ? productHeaderRef : undefined}>
                         {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     )
@@ -714,13 +533,11 @@ export function PricingTable({ data: initialData, selectedDate, isHistoricalView
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                     {row.getVisibleCells().map((cell, idx) => {
-                      // Sticky logic for first three columns
                       let style = {}
                       if (idx === 0) style = { position: 'sticky', left: 0, zIndex: 1, background: 'white', minWidth: 48, maxWidth: 48 }
-                      if (idx === 1) style = { position: 'sticky', left: 48, zIndex: 1, background: 'white', minWidth: 120, maxWidth: 120 }
-                      if (idx === 2) style = { position: 'sticky', left: 168, zIndex: 1, background: 'white', minWidth: 240, maxWidth: 240 }
+                      if (idx === 1) style = { position: 'sticky', left: 48, zIndex: 1, background: 'white', width: 'auto' }
                       return (
-                        <TableCell key={cell.id} style={style}>
+                        <TableCell key={cell.id} style={style} className="text-gray-600">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       )
@@ -736,6 +553,19 @@ export function PricingTable({ data: initialData, selectedDate, isHistoricalView
               )}
             </TableBody>
           </Table>
+          {/* Shadow for sticky columns */}
+          <div
+            className="sticky-shadow-right-bar"
+            style={{
+              position: 'absolute',
+              top: 48,
+              left: 'var(--frozen-cols-width, 100px)',
+              width: 12,
+              height: 'calc(100% - 48px)',
+              pointerEvents: 'none',
+              zIndex: 25,
+            }}
+          />
         </div>
         <TablePagination table={table} itemName="row" />
       </div>

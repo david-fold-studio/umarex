@@ -28,7 +28,7 @@ export const categories = [
 export const pricingData: PricingItem[] = [
   {
     id: "1",
-    upc: "UX-AP-001",
+    upc: "723364763571",
     name: "Umarex Glock 17 Gen5",
     category: "Air Pistols",
     importCost: 45.0,
@@ -44,7 +44,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "2",
-    upc: "UX-AP-002",
+    upc: "123456789012",
     name: "Umarex Beretta 92FS",
     category: "Air Pistols",
     importCost: 42.5,
@@ -60,7 +60,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "3",
-    upc: "UX-AR-001",
+    upc: "987654321098",
     name: "Umarex Ruger 10/22",
     category: "Air Rifles",
     importCost: 85.0,
@@ -76,7 +76,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "4",
-    upc: "UX-AR-002",
+    upc: "234567890123",
     name: "Umarex Hämmerli CR20",
     category: "Air Rifles",
     importCost: 110.0,
@@ -92,7 +92,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "5",
-    upc: "UX-CO2-001",
+    upc: "345678901234",
     name: "Umarex CO2 Capsules (10pk)",
     category: "CO2 Capsules",
     importCost: 3.2,
@@ -108,7 +108,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "6",
-    upc: "UX-CO2-002",
+    upc: "456789012345",
     name: "Umarex CO2 Capsules (25pk)",
     category: "CO2 Capsules",
     importCost: 7.5,
@@ -124,7 +124,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "7",
-    upc: "UX-AM-001",
+    upc: "567890123456",
     name: "Umarex Steel BBs (1500ct)",
     category: "Ammunition",
     importCost: 4.8,
@@ -140,7 +140,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "8",
-    upc: "UX-AM-002",
+    upc: "678901234567",
     name: "Umarex .177 Pellets (500ct)",
     category: "Ammunition",
     importCost: 5.2,
@@ -156,7 +156,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "9",
-    upc: "UX-SS-001",
+    upc: "789012345678",
     name: "Walther 2x20 Scope",
     category: "Scopes & Sights",
     importCost: 28.5,
@@ -172,7 +172,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "10",
-    upc: "UX-SS-002",
+    upc: "890123456789",
     name: "Umarex Red Dot Sight",
     category: "Scopes & Sights",
     importCost: 32.0,
@@ -188,7 +188,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "11",
-    upc: "UX-AC-001",
+    upc: "901234567890",
     name: "Umarex Gun Case (Small)",
     category: "Accessories",
     importCost: 12.5,
@@ -204,7 +204,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "12",
-    upc: "UX-AC-002",
+    upc: "112233445566",
     name: "Umarex Cleaning Kit",
     category: "Accessories",
     importCost: 8.2,
@@ -220,7 +220,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "13",
-    upc: "UX-PS-001",
+    upc: "223344556677",
     name: "Glock 17 Trigger Spring",
     category: "Parts & Service",
     importCost: 2.1,
@@ -236,7 +236,7 @@ export const pricingData: PricingItem[] = [
   },
   {
     id: "14",
-    upc: "UX-PS-002",
+    upc: "334455667788",
     name: "CO2 Valve Repair Kit",
     category: "Parts & Service",
     importCost: 4.8,

@@ -12,6 +12,28 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .sticky-shadow-right-bar {
+    box-shadow: 8px 0 8px -4px rgba(0,0,0,0.126);
+    border-right: 1px solid #e5e7eb;
+    background: transparent;
+  }
+  .sticky-shadow-right-cell {
+    position: relative;
+    z-index: 20;
+  }
+  .sticky-shadow-right-cell::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 100%;
+    pointer-events: none;
+    z-index: 21;
+    box-shadow: 8px 0 8px -4px rgba(0,0,0,0.126);
+    border-right: 1px solid #e5e7eb;
+    background: transparent;
+  }
 }
 
 @layer base {
