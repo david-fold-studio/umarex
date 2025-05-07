@@ -28,6 +28,7 @@ import { type PricingItem, categories } from "@/lib/pricing-data"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { TablePagination } from "@/components/table-pagination"
 
 // Extended PricingItem to track edited fields
 interface ExtendedPricingItem extends PricingItem {
@@ -428,41 +429,13 @@ const EditableSalePriceCell = ({ getValue, row, column, table }: EditableCellPro
   )
 }
 
-// Date selector for pricing history
-const DateSelector = ({ 
-  date, 
-  setDate 
-}: { 
-  date: Date | undefined, 
-  setDate: (date: Date | undefined) => void 
-}) => {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-[280px] justify-start text-left font-normal",
-            !date && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : "View pricing as of date"}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  )
+interface PricingTableProps {
+  data: PricingItem[]
+  selectedDate?: Date
+  isHistoricalView?: boolean
 }
 
-export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
+export function PricingTable({ data: initialData, selectedDate, isHistoricalView }: PricingTableProps) {
   // Initialize data with editedFields property
   const [data, setData] = React.useState<ExtendedPricingItem[]>(() =>
     initialData.map((item) => ({
@@ -476,11 +449,8 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all")
   
-  // Add date state for historical pricing view
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(undefined)
-  
   // Determine if we're in historical view mode (selected date is in the past)
-  const isHistoricalView = React.useMemo(() => {
+  const isHistoricalViewMode = React.useMemo(() => {
     if (!selectedDate) return false
     const today = new Date()
     today.setHours(0, 0, 0, 0) // Reset time part for accurate comparison
@@ -496,7 +466,7 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
           checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
-          disabled={isHistoricalView}
+          disabled={isHistoricalViewMode}
         />
       ),
       cell: ({ row }) => (
@@ -504,7 +474,7 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
-          disabled={isHistoricalView}
+          disabled={isHistoricalViewMode}
         />
       ),
       enableSorting: false,
@@ -514,13 +484,14 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
       accessorKey: "upc",
       header: "UPC",
       cell: ({ row }) => <div className="font-medium whitespace-nowrap">{row.getValue("upc")}</div>,
-      size: 150,
+      size: 120,
     },
     {
       accessorKey: "name",
       header: ({ column }) => {
         return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="w-full justify-start">
             Product Name
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
@@ -706,113 +677,67 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
   return (
     <TooltipProvider delayDuration={0} skipDelayDuration={0}>
       <div className="w-full">
-        <div className="flex flex-col gap-4 py-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex w-full max-w-sm items-center space-x-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search products..."
-                value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
-                className="h-9"
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <DateSelector date={selectedDate} setDate={setSelectedDate} />
-              <Button variant="outline" size="sm" className="h-9" disabled={isHistoricalView}>
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-              <Button size="sm" className="h-9" disabled={isHistoricalView}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Product
-              </Button>
-            </div>
+        <div className="border-b overflow-x-auto">
+          <div className="border-b px-4 py-3">
+            <Tabs defaultValue="all" onValueChange={setCategoryFilter}>
+              <TabsList className="grid grid-cols-4 sm:grid-cols-8">
+                <TabsTrigger value="all">All</TabsTrigger>
+                {categories.map((category) => (
+                  <TabsTrigger key={category} value={category}>
+                    {category}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
           </div>
-
-          {isHistoricalView && (
-            <div className="bg-amber-50 border border-amber-200 rounded-md px-4 py-3 text-amber-800">
-              <p className="flex items-center text-sm">
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                Viewing historical pricing data as of {format(selectedDate as Date, "MMMM d, yyyy")}. Editing is disabled.
-                <Button 
-                  variant="link" 
-                  className="ml-2 h-auto p-0 text-amber-800 underline"
-                  onClick={() => setSelectedDate(undefined)}
-                >
-                  Return to current pricing
-                </Button>
-              </p>
-            </div>
-          )}
-
-          <div className="rounded-md border">
-            <div className="border-b px-4 py-3">
-              <Tabs defaultValue="all" onValueChange={setCategoryFilter}>
-                <TabsList className="grid grid-cols-4 sm:grid-cols-8">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  {categories.map((category) => (
-                    <TabsTrigger key={category} value={category}>
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </div>
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header, idx) => {
+                    // Sticky logic for first three columns
+                    let style = {}
+                    if (idx === 0) style = { position: 'sticky', left: 0, zIndex: 2, background: 'white', minWidth: 48, maxWidth: 48 }
+                    if (idx === 1) style = { position: 'sticky', left: 48, zIndex: 2, background: 'white', minWidth: 120, maxWidth: 120 }
+                    if (idx === 2) style = { position: 'sticky', left: 168, zIndex: 2, background: 'white', minWidth: 240, maxWidth: 240 }
+                    return (
+                      <TableHead key={header.id} style={style}>
+                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell, idx) => {
+                      // Sticky logic for first three columns
+                      let style = {}
+                      if (idx === 0) style = { position: 'sticky', left: 0, zIndex: 1, background: 'white', minWidth: 48, maxWidth: 48 }
+                      if (idx === 1) style = { position: 'sticky', left: 48, zIndex: 1, background: 'white', minWidth: 120, maxWidth: 120 }
+                      if (idx === 2) style = { position: 'sticky', left: 168, zIndex: 1, background: 'white', minWidth: 240, maxWidth: 240 }
                       return (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                        </TableHead>
+                        <TableCell key={cell.id} style={style}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
                       )
                     })}
                   </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          <div className="flex items-center justify-between space-x-2 py-4">
-            <div className="flex-1 text-sm text-muted-foreground">
-              {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-              selected.
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                Next
-              </Button>
-            </div>
-          </div>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
+        <TablePagination table={table} itemName="row" />
       </div>
     </TooltipProvider>
   )

@@ -1,3 +1,5 @@
+'use client'
+import { useState, useMemo } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { CategoryTable } from "@/components/category-table"
 import { SiteHeader } from "@/components/site-header"
@@ -6,26 +8,42 @@ import { Toaster } from "@/components/ui/sonner"
 import { categoryData } from "@/lib/categories-data"
 import { getPageTitle } from "@/lib/nav"
 import { usePathname } from "next/navigation"
+import { PageLayout } from "@/components/page-layout"
+import { PageToolbar } from "@/components/page-toolbar"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 
 export default function CategoriesPage() {
-  const pathname = typeof window !== "undefined" ? window.location.pathname : "/categories"
+  const pathname = usePathname()
   const title = getPageTitle(pathname)
+  const [search, setSearch] = useState("")
+
+  // Filter category data by search
+  const filteredData = useMemo(() => {
+    if (!search) return categoryData
+    return categoryData.filter(item =>
+      item.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [search])
+
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title={title} />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 md:gap-6">
-              <div className="px-4 lg:px-6">
-                <CategoryTable data={categoryData} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </SidebarInset>
-      <Toaster />
-    </SidebarProvider>
+    <PageLayout
+      title={title}
+      toolbar={
+        <PageToolbar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={`Search ${title}...`}
+          addButton={
+            <Button size="sm" className="h-9">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Category
+            </Button>
+          }
+        />
+      }
+    >
+      <CategoryTable data={filteredData} />
+    </PageLayout>
   )
 } 
