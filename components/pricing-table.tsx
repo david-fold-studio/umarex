@@ -513,7 +513,8 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
     {
       accessorKey: "upc",
       header: "UPC",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("upc")}</div>,
+      cell: ({ row }) => <div className="font-medium whitespace-nowrap">{row.getValue("upc")}</div>,
+      size: 150,
     },
     {
       accessorKey: "name",

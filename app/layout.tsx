@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Umarex Dashboard',
+  description: 'Pricing management dashboard for Umarex',
+  generator: 'Next.js',
 }
 
 export default function RootLayout({
@@ -14,7 +15,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

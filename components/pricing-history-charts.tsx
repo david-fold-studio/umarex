@@ -63,7 +63,7 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
-        <CardHeader className="pb-1 pt-2">
+        <CardHeader className="flex flex-col space-y-1.5 p-6 pb-4 pt-4">
           <CardTitle className="text-sm font-semibold">Price & Cost Trends</CardTitle>
           <CardDescription className="text-xs">
             Historical view of sale price, cost price, and net profit
@@ -96,7 +96,7 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
             }}
             className="aspect-[4/1.5]"
           >
-            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -36, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 10 }} />
@@ -153,7 +153,7 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
       </Card>
       
       <Card>
-        <CardHeader className="pb-1 pt-2">
+        <CardHeader className="flex flex-col space-y-1.5 p-6 pb-4 pt-4">
           <CardTitle className="text-sm font-semibold">Cost Breakdown & Profit Margin</CardTitle>
           <CardDescription className="text-xs">
             Detailed cost components and profit margin percentage
@@ -202,7 +202,7 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
           >
             <BarChart
               data={chartData}
-              margin={{ top: 5, right: 30, left: 0, bottom: 0 }}
+              margin={{ top: 5, right: 30, left: -36, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 10 }} />
