@@ -29,6 +29,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { navMain } from "@/lib/nav"
 
 const data = {
   user: {
@@ -36,33 +37,7 @@ const data = {
     email: "admin@umarex.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  navMain: [
-    {
-      title: "Pricing",
-      url: "/",
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: "Categories",
-      url: "/categories",
-      icon: FolderIcon,
-    },
-    {
-      title: "Countries",
-      url: "/countries",
-      icon: GlobeIcon,
-    },
-    {
-      title: "Vendors",
-      url: "/vendors",
-      icon: UsersIcon,
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: SettingsIcon,
-    },
-  ],
+  navMain,
   navSecondary: [
     {
       title: "Account",
@@ -98,10 +73,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <div className="flex justify-start items-center pb-2">
+        <div className="flex justify-start items-center pb-0 pl-0">
           <Link href="/">
-            <div className="w-40 aspect-[5/1] flex items-center justify-center">
-              <img src="/umarex-logo.png" alt="Umarex Airguns Logo" className="h-full w-full object-contain" />
+            <div className="w-48 aspect-[5/1] flex items-center justify-center -ml-2">
+              <img src="/umarex-logo Compact.webp" alt="Umarex Compact Logo" className="h-full w-full object-contain" />
             </div>
           </Link>
         </div>

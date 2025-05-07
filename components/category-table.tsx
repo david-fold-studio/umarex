@@ -19,7 +19,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { type Category } from "@/app/dashboard/categories-data"
+import { type Category } from "@/lib/categories-data"
 
 export function CategoryTable({ data: initialData }: { data: Category[] }) {
   const [data, setData] = React.useState<Category[]>(initialData)

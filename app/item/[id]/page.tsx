@@ -7,7 +7,7 @@ import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { pricingData } from "@/app/dashboard/pricing-data"
+import { pricingData } from "@/lib/pricing-data"
 import { PricingHistoryCharts } from "@/components/pricing-history-charts"
 
 // Simulate pricing history data with dates
