@@ -13,9 +13,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, Calendar as CalendarIcon, Check, Download, Pencil, Plus, RotateCcw, Search, X } from "lucide-react"
+import { ArrowUpDown, Calendar as CalendarIcon, Check, Download, ExternalLink, Pencil, Plus, RotateCcw, Search, X } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -524,7 +525,18 @@ export function PricingTable({ data: initialData }: { data: PricingItem[] }) {
           </Button>
         )
       },
-      cell: ({ row }) => <div>{row.getValue("name")}</div>,
+      cell: ({ row }) => {
+        const router = useRouter()
+        return (
+          <div 
+            className="flex items-center cursor-pointer hover:text-blue-600 group"
+            onClick={() => router.push(`/item/${row.original.id}`)}
+          >
+            <span>{row.getValue("name")}</span>
+            <ExternalLink className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-100" />
+          </div>
+        )
+      },
     },
     {
       accessorKey: "category",
