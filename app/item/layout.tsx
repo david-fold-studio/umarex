@@ -1,6 +1,6 @@
 import React from "react"
 import { ThemeProvider } from "@/components/theme-provider"
-import { SiteHeader } from "@/components/site-header"
+import { ItemHeader } from "@/components/item-header"
 import { Toaster } from "@/components/ui/sonner"
 
 export default function ItemLayout({
@@ -17,7 +17,7 @@ export default function ItemLayout({
         disableTransitionOnChange
       >
         <div className="flex flex-col min-h-screen">
-          <SiteHeader />
+          <ItemHeader />
           <main className="flex-1">
             {children}
           </main>

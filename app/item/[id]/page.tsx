@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, ArrowUpDown } from "lucide-react"
+import { ArrowUpDown } from "lucide-react"
 import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
@@ -86,7 +86,6 @@ export default function ItemPage() {
     return (
       <div className="container mx-auto py-10">
         <Button variant="ghost" onClick={() => router.back()}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         <div className="flex items-center justify-center h-[50vh]">
@@ -106,15 +105,9 @@ export default function ItemPage() {
 
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
-        <Button variant="outline" onClick={() => router.back()} className="h-9">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Pricing
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">{item.name}</h1>
-          <p className="text-muted-foreground">UPC: {item.upc} | Category: {item.category}</p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">{item.name}</h1>
+        <p className="text-muted-foreground">UPC: {item.upc} | Category: {item.category}</p>
       </div>
 
       <div className="bg-card rounded-md border shadow-sm">
