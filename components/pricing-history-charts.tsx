@@ -63,13 +63,13 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Price & Cost Trends</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-1 pt-2">
+          <CardTitle className="text-sm font-semibold">Price & Cost Trends</CardTitle>
+          <CardDescription className="text-xs">
             Historical view of sale price, cost price, and net profit
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-2">
           <ChartContainer
             config={{
               costPrice: {
@@ -94,18 +94,18 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
                 },
               },
             }}
-            className="aspect-[4/3]"
+            className="aspect-[4/1.5]"
           >
-            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} />
               <Tooltip
                 content={({ active, payload }) => {
                   if (!active || !payload) return null
                   return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg border bg-background p-1 shadow-sm text-xs">
+                      <div className="grid grid-cols-2 gap-1">
                         <div className="font-medium">Date:</div>
                         <div>{payload[0]?.payload.date}</div>
                         {payload.map((entry) => (
@@ -119,7 +119,7 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
                   )
                 }}
               />
-              <Legend />
+              <Legend wrapperStyle={{ fontSize: '10px' }} />
               <Area
                 type="monotone"
                 dataKey="costPrice"
@@ -153,13 +153,13 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
       </Card>
       
       <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Cost Breakdown & Profit Margin</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-1 pt-2">
+          <CardTitle className="text-sm font-semibold">Cost Breakdown & Profit Margin</CardTitle>
+          <CardDescription className="text-xs">
             Detailed cost components and profit margin percentage
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-2">
           <ChartContainer
             config={{
               importCost: {
@@ -198,22 +198,22 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
                 },
               },
             }}
-            className="aspect-[4/3]"
+            className="aspect-[4/1.5]"
           >
             <BarChart
               data={chartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              margin={{ top: 5, right: 30, left: 0, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-              <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+              <YAxis yAxisId="left" orientation="left" stroke="#8884d8" tick={{ fontSize: 10 }} />
+              <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" tick={{ fontSize: 10 }} />
               <Tooltip
                 content={({ active, payload }) => {
                   if (!active || !payload) return null
                   return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg border bg-background p-1 shadow-sm text-xs">
+                      <div className="grid grid-cols-2 gap-1">
                         <div className="font-medium">Date:</div>
                         <div>{payload[0]?.payload.date}</div>
                         {payload.map((entry) => (
@@ -231,7 +231,7 @@ export function PricingHistoryCharts({ historyData, productName }: PricingHistor
                   )
                 }}
               />
-              <Legend />
+              <Legend wrapperStyle={{ fontSize: '10px' }} />
               <Bar
                 yAxisId="left"
                 dataKey="importCost"
