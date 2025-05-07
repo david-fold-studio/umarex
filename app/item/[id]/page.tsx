@@ -8,6 +8,7 @@ import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { pricingData } from "@/app/dashboard/pricing-data"
+import { PricingHistoryCharts } from "@/components/pricing-history-charts"
 
 // Simulate pricing history data with dates
 const generateHistoricalData = (itemId: string) => {
@@ -108,6 +109,11 @@ export default function ItemPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold">{item.name}</h1>
         <p className="text-muted-foreground">UPC: {item.upc} | Category: {item.category}</p>
+      </div>
+
+      {/* Add the pricing history charts */}
+      <div className="mb-8">
+        <PricingHistoryCharts historyData={pricingHistory} productName={item.name} />
       </div>
 
       <div className="bg-card rounded-md border shadow-sm">
