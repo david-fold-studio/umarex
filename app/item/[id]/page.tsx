@@ -105,9 +105,9 @@ export default function ItemPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center mb-8">
-        <Button variant="ghost" onClick={() => router.back()} className="mr-4">
+    <div className="container mx-auto py-6 px-4 md:px-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+        <Button variant="outline" onClick={() => router.back()} className="h-9">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Pricing
         </Button>
@@ -116,57 +116,63 @@ export default function ItemPage() {
           <p className="text-muted-foreground">UPC: {item.upc} | Category: {item.category}</p>
         </div>
       </div>
-      
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Import Cost</TableHead>
-              <TableHead className="text-right">Shipping</TableHead>
-              <TableHead className="text-right">Customs</TableHead>
-              <TableHead className="text-right">Handling</TableHead>
-              <TableHead className="text-right">Cost Price</TableHead>
-              <TableHead className="text-right">Sale Price</TableHead>
-              <TableHead className="text-right">Net Profit</TableHead>
-              <TableHead className="text-right">Margin %</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pricingHistory.map((historyItem, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">
-                  {format(historyItem.date, "MMM d, yyyy")}
-                  {index === 0 && <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Current</span>}
-                </TableCell>
-                <TableCell className={`text-right ${historyItem.changes.includes("importCost") ? "text-green-600 font-medium" : ""}`}>
-                  {formatCurrency(historyItem.importCost)}
-                </TableCell>
-                <TableCell className={`text-right ${historyItem.changes.includes("shippingCost") ? "text-green-600 font-medium" : ""}`}>
-                  {formatCurrency(historyItem.shippingCost)}
-                </TableCell>
-                <TableCell className={`text-right ${historyItem.changes.includes("customsDuty") ? "text-green-600 font-medium" : ""}`}>
-                  {formatCurrency(historyItem.customsDuty)}
-                </TableCell>
-                <TableCell className={`text-right ${historyItem.changes.includes("handlingFee") ? "text-green-600 font-medium" : ""}`}>
-                  {formatCurrency(historyItem.handlingFee)}
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatCurrency(historyItem.costPrice)}
-                </TableCell>
-                <TableCell className={`text-right ${historyItem.changes.includes("salePrice") ? "text-green-600 font-medium" : ""}`}>
-                  {formatCurrency(historyItem.salePrice)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatCurrency(historyItem.netProfit)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {historyItem.profitMargin.toFixed(2)}%
-                </TableCell>
+
+      <div className="bg-card rounded-md border shadow-sm">
+        <div className="border-b px-4 py-3">
+          <h2 className="text-lg font-semibold">Pricing History</h2>
+          <p className="text-sm text-muted-foreground">Green values indicate changes from previous period</p>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">Import Cost</TableHead>
+                <TableHead className="text-right">Shipping</TableHead>
+                <TableHead className="text-right">Customs</TableHead>
+                <TableHead className="text-right">Handling</TableHead>
+                <TableHead className="text-right">Cost Price</TableHead>
+                <TableHead className="text-right">Sale Price</TableHead>
+                <TableHead className="text-right">Net Profit</TableHead>
+                <TableHead className="text-right">Margin %</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {pricingHistory.map((historyItem, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">
+                    {format(historyItem.date, "MMM d, yyyy")}
+                    {index === 0 && <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Current</span>}
+                  </TableCell>
+                  <TableCell className={`text-right ${historyItem.changes.includes("importCost") ? "text-green-600 font-medium" : ""}`}>
+                    {formatCurrency(historyItem.importCost)}
+                  </TableCell>
+                  <TableCell className={`text-right ${historyItem.changes.includes("shippingCost") ? "text-green-600 font-medium" : ""}`}>
+                    {formatCurrency(historyItem.shippingCost)}
+                  </TableCell>
+                  <TableCell className={`text-right ${historyItem.changes.includes("customsDuty") ? "text-green-600 font-medium" : ""}`}>
+                    {formatCurrency(historyItem.customsDuty)}
+                  </TableCell>
+                  <TableCell className={`text-right ${historyItem.changes.includes("handlingFee") ? "text-green-600 font-medium" : ""}`}>
+                    {formatCurrency(historyItem.handlingFee)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(historyItem.costPrice)}
+                  </TableCell>
+                  <TableCell className={`text-right ${historyItem.changes.includes("salePrice") ? "text-green-600 font-medium" : ""}`}>
+                    {formatCurrency(historyItem.salePrice)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(historyItem.netProfit)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {historyItem.profitMargin.toFixed(2)}%
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   )

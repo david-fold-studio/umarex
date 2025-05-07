@@ -1,4 +1,7 @@
 import React from "react"
+import { ThemeProvider } from "@/components/theme-provider"
+import { SiteHeader } from "@/components/site-header"
+import { Toaster } from "@/components/ui/sonner"
 
 export default function ItemLayout({
   children,
@@ -7,7 +10,20 @@ export default function ItemLayout({
 }>) {
   return (
     <div className="min-h-screen bg-background">
-      {children}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <div className="flex flex-col min-h-screen">
+          <SiteHeader />
+          <main className="flex-1">
+            {children}
+          </main>
+        </div>
+        <Toaster />
+      </ThemeProvider>
     </div>
   )
 } 
